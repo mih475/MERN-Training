@@ -118,22 +118,40 @@ employeesRouter.post("/", async (req: Request, res: Response) => {
 });
   
 // PUT employees/:id  
+async function updateId(request: express.Request, response: express.Response) {
+  var id = request.params.id;       
+  const postData: Employee = request.body;
+  try {
+   let post= await employeeSchemaModel.findByIdAndUpdate(id, postData, {new:true});
+    if(post){
+      response.status(200).send(post);
+    }
+    else{
+      response.status(404).send(id + " not found");
+    }
+  } catch (error) {
+    response.status(500).send(error);
+  }
+}
 employeesRouter.put("/:id", async (req: Request, res: Response) => {
-    const id: number = parseInt(req.params.id, 10);
+    //const id: number = parseInt(req.params.id, 10);
   
     try {
-      const empUpdate: Employee = req.body;
+      //const empUpdate: Employee = req.body;
   
-      const existingEmp: Employee = await EmployeeService.find(id);
+      // const existingEmp: Employee = await EmployeeService.find(id);
   
-      if (existingEmp) {
-        const updatedEmp = await EmployeeService.update(id, empUpdate);
-        return res.status(200).json(updatedEmp);
-      }
+      // if (existingEmp) {
+      //   const updatedEmp = await EmployeeService.update(id, empUpdate);
+      //   return res.status(200).json(updatedEmp);
+      // }
+      
+      // const newEmp = await EmployeeService.create(empUpdate);
   
-      const newEmp = await EmployeeService.create(empUpdate);
-  
-      res.status(201).json(newEmp);
+      // res.status(201).json(newEmp);
+      
+      employeesRouter.patch("/:id",updateId);
+
     } catch (e: any) {
       res.status(500).send(e.message);
     }
@@ -141,12 +159,35 @@ employeesRouter.put("/:id", async (req: Request, res: Response) => {
   
   
 // DELETE employees/:id  
+async function deleteId(request: express.Request, response: express.Response) {
+  var id = request.params.id;    
+  //response.status(250).send(id);   
+  try {
+   let post= await employeeSchemaModel.findByIdAndDelete(id);
+    if(post){
+      response.status(200).send("post deleted");
+    }
+    else{
+      response.status(404).send(id + " not found");
+    }
+  // employeeSchemaModel.findByIdAndDelete(id)
+  //     .then(successResponse => {
+  //       if(successResponse) {
+  //         response.send(200);
+  //       } else {
+  //         response.send(404);
+  //       }
+  //     })
+  } catch (error) {
+    response.status(500).send(error);
+  }
+}
 employeesRouter.delete("/:id", async (req: Request, res: Response) => {
     try {
-      const id: number = parseInt(req.params.id, 10);
-      await EmployeeService.remove(id);
-  
-      res.sendStatus(204);
+      // const id: number = parseInt(req.params.id, 10);
+      // await EmployeeService.remove(id);
+      //res.sendStatus(204);
+      deleteId(req,res);
     } catch (e: any) {
       res.status(500).send(e.message);
     }
