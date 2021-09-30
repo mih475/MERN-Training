@@ -150,7 +150,8 @@ employeesRouter.put("/:id", async (req: Request, res: Response) => {
   
       // res.status(201).json(newEmp);
       
-      employeesRouter.patch("/:id",updateId);
+
+      updateId(req,res);
 
     } catch (e: any) {
       res.status(500).send(e.message);
@@ -161,7 +162,6 @@ employeesRouter.put("/:id", async (req: Request, res: Response) => {
 // DELETE employees/:id  
 async function deleteId(request: express.Request, response: express.Response) {
   var id = request.params.id;    
-  //response.status(250).send(id);   
   try {
    let post= await employeeSchemaModel.findByIdAndDelete(id);
     if(post){
@@ -170,14 +170,6 @@ async function deleteId(request: express.Request, response: express.Response) {
     else{
       response.status(404).send(id + " not found");
     }
-  // employeeSchemaModel.findByIdAndDelete(id)
-  //     .then(successResponse => {
-  //       if(successResponse) {
-  //         response.send(200);
-  //       } else {
-  //         response.send(404);
-  //       }
-  //     })
   } catch (error) {
     response.status(500).send(error);
   }
