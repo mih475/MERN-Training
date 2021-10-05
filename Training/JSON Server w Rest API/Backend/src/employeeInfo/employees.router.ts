@@ -27,7 +27,7 @@ function getAllPosts(request: express.Request, response: express.Response) {
     })
 }
 
-employeesRouter.get("/", async (req: Request, res: Response) => {
+employeesRouter.route('/').get(async (req: Request, res: Response) => {
     try {
       const items: Employee[] = await EmployeeService.findAll();
       //res.status(200).send(items);
@@ -86,7 +86,8 @@ employeesRouter.get("/:id", async (req: Request, res: Response) => {
   
   
 // POST employees  
-employeesRouter.post("/", async (req: Request, res: Response) => {
+
+employeesRouter.route('/create-employee').post(async (req: Request, res: Response) => {
     try {
       const emp: BaseEmployeeInfo = req.body;
 
@@ -119,7 +120,8 @@ employeesRouter.post("/", async (req: Request, res: Response) => {
   
 // PUT employees/:id  
 async function updateId(request: express.Request, response: express.Response) {
-  var id = request.params.id;       
+  var id = request.params.id;
+  console.log(id);       
   const postData: Employee = request.body;
   try {
    let post= await employeeSchemaModel.findByIdAndUpdate(id, postData, {new:true});
@@ -133,7 +135,7 @@ async function updateId(request: express.Request, response: express.Response) {
     response.status(500).send(error);
   }
 }
-employeesRouter.put("/:id", async (req: Request, res: Response) => {
+employeesRouter.route('/edit-employee/:id').put(async (req: Request, res: Response) => {
     //const id: number = parseInt(req.params.id, 10);
   
     try {
@@ -174,7 +176,7 @@ async function deleteId(request: express.Request, response: express.Response) {
     response.status(500).send(error);
   }
 }
-employeesRouter.delete("/:id", async (req: Request, res: Response) => {
+employeesRouter.route('/delete-employee/:id').delete(async (req: Request, res: Response) => {
     try {
       // const id: number = parseInt(req.params.id, 10);
       // await EmployeeService.remove(id);

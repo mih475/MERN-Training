@@ -32,7 +32,7 @@
  app.use(helmet());
  app.use(cors());
  app.use(express.json());
- app.use("/Backend/src/employeeInfo", employeesRouter);
+ app.use('/employees', employeesRouter);
 
 
 /**

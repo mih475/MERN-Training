@@ -9,6 +9,7 @@ import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import "bootstrap/dist/css/bootstrap.css";
+//import "./App.css";
 
 import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 
@@ -58,7 +59,7 @@ const App: React.FC = () =>{
               <Switch>
                 <Route exact path='/' component={EmployeeList} />
                 <Route path="/create-employee" component={CreateEmployee} />
-                <Route path="/edit-employee/:id" component={EditEmployee} />
+                <Route path="/edit-employee/" component={EditEmployee} />
                 <Route path="/employee-list" component={EmployeeList} />
               </Switch>
             </div>
