@@ -9,11 +9,33 @@ import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import "bootstrap/dist/css/bootstrap.css";
-//import "./App.css";
+import NotFound from './components/NotFound';
+
 
 import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 
+window.onerror = (msg, url, line, col, error) => {
+  // Note that col & error are new to the HTML 5 spec and may not be 
+  // supported in every browser.  It worked for me in Chrome.
+  var extra = !col ? '' : '\ncolumn: ' + col;
+  extra += !error ? '' : '\nerror: ' + error;
 
+  // You can view the information in an alert to see things working like this:
+  console.error("Error: " + msg + "\nurl: " + url + "\nline: " + line + extra);
+
+  // TODO: Report this error via ajax so you can keep track
+  //       of what pages have JS issues
+
+  var suppressErrorAlert = true;
+  // If you return true, then error alerts (like in older versions of 
+  // Internet Explorer) will be suppressed.
+  return suppressErrorAlert;
+};
+
+window.onunhandledrejection = (e: PromiseRejectionEvent) => {
+  console.error(e);
+  throw new Error(e.reason.stack);
+}
 
 const App: React.FC = () =>{
   return (<Router>
@@ -61,6 +83,7 @@ const App: React.FC = () =>{
                 <Route path="/create-employee" component={CreateEmployee} />
                 <Route path="/edit-employee/" component={EditEmployee} />
                 <Route path="/employee-list" component={EmployeeList} />
+                <Route component = {NotFound}/>
               </Switch>
             </div>
           </Col>

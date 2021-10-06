@@ -52,15 +52,14 @@ async function getPostById(request: express.Request, response: express.Response)
 
 
   try {
-   let post= await employeeSchemaModel.findById(id)
+   let post= await employeeSchemaModel.findById(id);
     // .then(post => {
     //   response.send(post);
     // }).catch((error) => console.log(error)).finally(() => console.error("blahjjfasf"))
     if(post){
       response.status(200).send(post);
-    }
-    else{
-      response.status(404).send(id + " not found");
+    } else {
+      response.status(404).send(id + "Employee not found");
     }
   } catch (error) {
     response.status(500).send(error);
@@ -70,17 +69,17 @@ async function getPostById(request: express.Request, response: express.Response)
 employeesRouter.get("/:id", async (req: Request, res: Response) => {
     const id: number = parseInt(req.params.id, 10);
   
-    try {
-      const item: Employee = await EmployeeService.find(id);
+    // try {
+    //   const item: Employee = await EmployeeService.find(id);
   
-      // if (item) {
-      //   return res.status(200).send(item);
-      // }
+    //   // if (item) {
+    //   //   return res.status(200).send(item);
+    //   // }
   
-      // res.status(404).send("Employee not found");
-    } catch (e: any) {
-      res.status(500).send(e.message);
-    }
+    //   // res.status(404).send("Employee not found");
+    // } catch (e: any) {
+    //   res.status(500).send(e.message);
+    // }
     getPostById(req,res);
 });
   
