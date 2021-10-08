@@ -1,46 +1,50 @@
-import React, { Component, Props } from 'react';
+import React, { Component } from 'react';
 import axios from 'axios';
 import { RouteComponentProps } from 'react-router';
 import _ from 'lodash';
 import { EmployeeIStates } from './EmployeeInterfaceStates';
-import { Link } from 'react-router-dom';
-import Button from 'react-bootstrap/Button';
-import { useParams } from 'react-router';
-import { Table } from 'react-bootstrap';
 
-// type State = {
-//     employees: []
-// };
-function Get() {
-  return useParams();
- }
+import paginationFactory, {
+  PaginationProvider,
+  PaginationListStandalone,
+  PaginationTotalStandalone,
+  SizePerPageDropdownStandalone
+} from 'react-bootstrap-table2-paginator';
+require('react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.min.css');
+
 
 class EmployeeList extends Component<RouteComponentProps,EmployeeIStates> {
 
     constructor(props: RouteComponentProps) {
         super(props)
-        this.deleteEmployee = this.deleteEmployee.bind(this);
-
-        // this.state = {
-        //   employees: []
-        // };
-        
+        this.myHandler = this.myHandler.bind(this);
+        this.componentWillMount = this.componentWillMount.bind(this);
         this.state = {
           datarecords: [],
           datacolumns: []
         };
       }
     
+
       //Methods
-      public componentWillMount(): void {const api_url = 'http://localhost:7000/employees/';
+      componentWillMount(): void {const api_url = 'http://localhost:7000/employees/';
         axios.get(api_url).then(response => {
         this.setState({datarecords: response.data});
         this.extractColumnNames();
         });
+        document.body.removeEventListener('click', this.myHandler);
+      }
+
+      private myHandler(id: any) {
+        console.log (id);
+        window.location.href = 'http://localhost:3000/edit-employee/'+ id;
       }
 
       private extractColumnNames() {
         const firstrecord = _.keys(this.state.datarecords[0]);
+        var location = firstrecord.indexOf("__v");
+        delete firstrecord[location];
+        console.log(firstrecord);
         this.setState({datacolumns: firstrecord,});
       }
 
@@ -60,55 +64,13 @@ class EmployeeList extends Component<RouteComponentProps,EmployeeIStates> {
         return str_tt;
       }
 
-      // componentDidMount() {
-      //   axios.get('http://localhost:7000/employees/')
-      //     .then(res => {
-      //       this.setState({
-      //         employees: res.data
-      //       });
-      //     })
-      //     .catch((error) => {
-      //       console.log(error);
-      //     })
-      // }
-    
-      // DataTable() {
-      //   return this.state.employees.map((res: any, i: any) => {
-      //     return <EmployeeTable key={i} />;
-      //   });
-      // }
-
-    deleteEmployee(id: any) {
-        axios.delete('http://localhost:7000/employees/delete-employee/' + id)
-            .then((res) => {
-                alert('Employee successfully deleted!')
-                window.location.href = 'http://localhost:3000/employee-list';
-            }).catch((error) => {
-                console.log(error)
-            })
-    }
-
     render () {
-        // return (<div className="table-wrapper">
-        //   <Table striped bordered hover>
-        //     <thead>
-        //       <tr>
-        //         <th>firstname</th>
-        //         <th>lastname</th>
-        //         <th>role</th>
-        //         <th>email</th>
-        //       </tr>
-        //     </thead>
-        //     <tbody>
-        //       {this.DataTable()}
-        //     </tbody>
-        //   </Table>
-        // </div>);
-
         const datarecords = this.state.datarecords;
         const each_datarecord_keys = this.state.datacolumns;
-        var id  = '';
-      
+        const paginationOption = {
+          custom: true,
+          totalSize: datarecords.length
+        }
 
         return (
             
@@ -120,44 +82,62 @@ class EmployeeList extends Component<RouteComponentProps,EmployeeIStates> {
                 )}
                 <div className="container">
                     <div className="row">
-                        <table className="table table-bordered" id = "tbl">
+                        <table className="table table-bordered" id = "tbl" >
                             <thead className="thead-light">
                               <tr>
                                 {each_datarecord_keys && each_datarecord_keys.map(each_datarecord_key => 
                                   <th scope="col">{this.Capitalize(each_datarecord_key)}</th>
                                 )}
-                                <th scope="col">Actions</th>
+                                {/* <th scope="col">Actions</th> */}
                               </tr>
                             </thead>                            
                             <tbody> 
                               {datarecords && datarecords.map((each_datarecord, recordindex) =>
-                                <tr className="rowInfo">
+                                
+                                <tr className="rowInfo" onClick={()=>this.myHandler(each_datarecord._id)}>
 
                                   {this.displayRecords(recordindex)} 
 
-                                  <td>
+                                  {/* <td>
                                     <Link className="edit-link" to={"/edit-employee/" + each_datarecord._id}>
                                       Edit
                                     </Link>
                                     &nbsp;&nbsp;&nbsp;
                                     <Button onClick={() => this.deleteEmployee(each_datarecord._id)} size="sm" variant="danger">Delete</Button>
-                                  </td>
-
+                                  </td> */}
 
                                 </tr>
                               )}
-                              {/* <tr> 
-                                <td>
-                                  <Link className="edit-link" to={"/edit-student/" + }>
-                                    Edit
-                                  </Link>
-                                  <Button size="sm" variant="danger">Delete</Button>
-                                </td>
-                              </tr> */}
                             </tbody>
                           </table>
                       </div>
                   </div>
+                  {/* <PaginationProvider pagination={ paginationFactory(paginationOption) }>
+                    {
+                      ({
+                        paginationProps,
+                        paginationTableProps
+                      }) => (
+                      <div>
+                        <SizePerPageDropdownStandalone
+                        { ...paginationProps }
+                        />
+                        <PaginationTotalStandalone
+                          { ...paginationProps }
+                        />
+                        {/* <BootstrapTable
+                          keyField="id"
+                          data={ products }
+                          columns={ columns }
+                          { ...paginationTableProps }
+                        /> */}
+                        {/*<PaginationListStandalone
+                          { ...paginationProps }
+                        />
+                      </div>
+                      )
+                    }
+                  </PaginationProvider> */}
               </div>
           )
       }

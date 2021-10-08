@@ -3,15 +3,9 @@ import { ChangeEvent } from 'react';
 import Form from 'react-bootstrap/Form';
 import { Button } from 'react-bootstrap';
 import axios from 'axios';
+import {CreateEmployeeI} from './CreateEmployeeInterface';
 
-type State = {
-    firstname: string,
-    lastname: string,
-    role: string,
-    email: string
-  };
-
-class CreateEmployee extends Component<{},State> {
+class CreateEmployee extends Component<{},CreateEmployeeI> {
     constructor(props: any) {
         super(props)
 
