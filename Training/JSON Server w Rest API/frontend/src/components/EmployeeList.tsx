@@ -3,29 +3,26 @@ import axios from 'axios';
 import { RouteComponentProps } from 'react-router';
 import _ from 'lodash';
 import { EmployeeIStates } from './EmployeeInterfaceStates';
+import { PaginationInterface } from './pagination/PaginationInterface';
+import Pagination from './pagination/Pagination';
 
-import paginationFactory, {
-  PaginationProvider,
-  PaginationListStandalone,
-  PaginationTotalStandalone,
-  SizePerPageDropdownStandalone
-} from 'react-bootstrap-table2-paginator';
-require('react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.min.css');
-
-
-class EmployeeList extends Component<RouteComponentProps,EmployeeIStates> {
+class EmployeeList extends Component<RouteComponentProps,EmployeeIStates & PaginationInterface> {
 
     constructor(props: RouteComponentProps) {
         super(props)
         this.myHandler = this.myHandler.bind(this);
+        this.changePage = this.changePage.bind(this);
         this.componentWillMount = this.componentWillMount.bind(this);
         this.state = {
           datarecords: [],
-          datacolumns: []
+          datacolumns: [],
+          posts: [],
+          loading: false,
+          currentPage: 1,
+          postsPerPage: 3
         };
       }
     
-
       //Methods
       componentWillMount(): void {const api_url = 'http://localhost:7000/employees/';
         axios.get(api_url).then(response => {
@@ -33,8 +30,10 @@ class EmployeeList extends Component<RouteComponentProps,EmployeeIStates> {
         this.extractColumnNames();
         });
         document.body.removeEventListener('click', this.myHandler);
+        document.body.removeEventListener('click', this.changePage);
       }
 
+      
       private myHandler(id: any) {
         console.log (id);
         window.location.href = 'http://localhost:3000/edit-employee/'+ id;
@@ -44,11 +43,11 @@ class EmployeeList extends Component<RouteComponentProps,EmployeeIStates> {
         const firstrecord = _.keys(this.state.datarecords[0]);
         var location = firstrecord.indexOf("__v");
         delete firstrecord[location];
-        console.log(firstrecord);
         this.setState({datacolumns: firstrecord,});
       }
 
-      private displayRecords(key: number){
+      private displayRecords(key: number, indexOfFirstPost: number){
+        key = key + indexOfFirstPost;
         const datacolumns= this.state.datacolumns;
         return datacolumns.map((each_col) =>
         this.displayRecordName(each_col,key))
@@ -64,16 +63,25 @@ class EmployeeList extends Component<RouteComponentProps,EmployeeIStates> {
         return str_tt;
       }
 
+      // Change page
+      private changePage(pageNumber: any){
+        this.setState({currentPage: pageNumber});
+        console.log(pageNumber)
+      }
+
     render () {
-        const datarecords = this.state.datarecords;
+
+        // Get current posts
+        const indexOfLastPost = this.state.currentPage * this.state.postsPerPage;
+        const indexOfFirstPost = indexOfLastPost - this.state.postsPerPage;
+        const currentPosts = this.state.datarecords.slice(indexOfFirstPost, indexOfLastPost);
+
+        console.log(currentPosts);
+        console.log(indexOfFirstPost);
+        const datarecords = currentPosts;
         const each_datarecord_keys = this.state.datacolumns;
-        const paginationOption = {
-          custom: true,
-          totalSize: datarecords.length
-        }
 
         return (
-            
             <div>
                 {datarecords.length === 0 && (
                     <div className="text-center">
@@ -92,11 +100,10 @@ class EmployeeList extends Component<RouteComponentProps,EmployeeIStates> {
                               </tr>
                             </thead>                            
                             <tbody> 
-                              {datarecords && datarecords.map((each_datarecord, recordindex) =>
-                                
+                              {currentPosts && currentPosts.map((each_datarecord, index) =>
                                 <tr className="rowInfo" onClick={()=>this.myHandler(each_datarecord._id)}>
 
-                                  {this.displayRecords(recordindex)} 
+                                  {this.displayRecords(index, indexOfFirstPost)} 
 
                                   {/* <td>
                                     <Link className="edit-link" to={"/edit-employee/" + each_datarecord._id}>
@@ -109,35 +116,14 @@ class EmployeeList extends Component<RouteComponentProps,EmployeeIStates> {
                                 </tr>
                               )}
                             </tbody>
+                            <Pagination
+                                postsPerPage={this.state.postsPerPage}
+                                totalPosts={this.state.datarecords.length}
+                                paginate={this.changePage} 
+                            />
                           </table>
                       </div>
                   </div>
-                  {/* <PaginationProvider pagination={ paginationFactory(paginationOption) }>
-                    {
-                      ({
-                        paginationProps,
-                        paginationTableProps
-                      }) => (
-                      <div>
-                        <SizePerPageDropdownStandalone
-                        { ...paginationProps }
-                        />
-                        <PaginationTotalStandalone
-                          { ...paginationProps }
-                        />
-                        {/* <BootstrapTable
-                          keyField="id"
-                          data={ products }
-                          columns={ columns }
-                          { ...paginationTableProps }
-                        /> */}
-                        {/*<PaginationListStandalone
-                          { ...paginationProps }
-                        />
-                      </div>
-                      )
-                    }
-                  </PaginationProvider> */}
               </div>
           )
       }

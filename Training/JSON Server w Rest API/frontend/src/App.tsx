@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+
 import EmployeeList from './components/EmployeeList';
 import EditEmployee from './components/EditEmployee';
 import CreateEmployee from './components/CreateEmployee';
@@ -83,7 +84,7 @@ const App: React.FC = () =>{
                 <Route path="/create-employee" component={CreateEmployee} />
                 <Route path="/edit-employee/" component={EditEmployee} />
                 <Route path="/employee-list" component={EmployeeList} />
-                <Route component = {NotFound}/>
+                <Route path='*' component = {NotFound}/>
               </Switch>
             </div>
           </Col>

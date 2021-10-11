@@ -1,6 +1,6 @@
-export interface PaginationInterface {
-    totalcount: number;
+export interface PaginationInterface{
+    posts: [];
+    loading: boolean;
     currentPage: number;
-    pageSize: number
-    
+    postsPerPage: number;
 }
