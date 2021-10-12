@@ -88,7 +88,12 @@ class EmployeeList extends Component<RouteComponentProps,EmployeeIStates & Pagin
                         <h2>No datarecords found at the moment</h2>
                     </div>
                 )}
-                <div className="container">
+                <div className="container" style={{
+                width: "100%",
+                paddingLeft: "30px",
+                paddingTop: "30px",
+                paddingBottom: "6px"
+                }}>
                     <div className="row">
                         <table className="table table-bordered" id = "tbl" >
                             <thead className="thead-light">

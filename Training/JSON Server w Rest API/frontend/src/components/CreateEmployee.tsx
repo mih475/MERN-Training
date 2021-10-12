@@ -4,17 +4,17 @@ import Form from 'react-bootstrap/Form';
 import { Button } from 'react-bootstrap';
 import axios from 'axios';
 import {CreateEmployeeI} from './CreateEmployeeInterface';
-
+import DropdownMenu from 'react-overlays/esm/DropdownMenu';
 class CreateEmployee extends Component<{},CreateEmployeeI> {
     constructor(props: any) {
         super(props)
 
         // Setting up state
         this.state = {
-          firstname: "null",
-          lastname: "null",
-          role: "null",
-          email: "null"
+          firstname: "",
+          lastname: "",
+          role: "",
+          email: ""
         }
     
         // Setting up functions
@@ -28,11 +28,29 @@ class CreateEmployee extends Component<{},CreateEmployeeI> {
 
     
       onChangeEmployeeFirstName(e: ChangeEvent<HTMLInputElement>) {
-         this.setState({firstname: e.target.value});
+        if(!e.target.value.match((/^[a-zA-Z]+$/))|| e.target.value.length < 3){
+          this.setState({firstname: ""})
+          document.getElementById("firstnameErr")!.innerHTML = "Please insert a valid first name!" + "<br />" + 
+             "Can't add numbers or expressions for your first name" + "<br />" + 
+             "At least three letters must exist as first name. Add another letter before changing the remaining three letters"
+        }
+        else {
+          document.getElementById("firstnameErr")!.innerHTML = "";
+          this.setState({firstname: e.target.value});
+        }
       };
     
       onChangeEmployeeLastName(e: ChangeEvent<HTMLInputElement>) {
-        this.setState({lastname: e.target.value});
+        if(!e.target.value.match((/^[a-zA-Z]+$/))|| e.target.value.length < 3){
+          this.setState({lastname: ""})
+          document.getElementById("lastnameErr")!.innerHTML = "Please insert a valid last name!" + "<br />" + 
+             "Can't add numbers or expressions for your last name" + "<br />" + 
+             "At least three letters must exist as last name. Add another letter before changing the remaining three letters"
+        }
+        else {
+          document.getElementById("lastnameErr")!.innerHTML = "";
+          this.setState({lastname: e.target.value});
+        }
       }
 
       onChangeEmployeeRole(e: ChangeEvent<HTMLInputElement>) {
@@ -40,7 +58,19 @@ class CreateEmployee extends Component<{},CreateEmployeeI> {
       }
 
       onChangeEmployeeEmail(e: ChangeEvent<HTMLInputElement>) {
-        this.setState({email: e.target.value});
+        let regEmail = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        if (!regEmail.test(e.target.value)) {
+            this.setState({email: ""});
+            document.getElementById("emailErr")!.innerHTML = "Please insert a valid email!" + "<br />" + 
+             "Can't remove '@'" + "<br />" + 
+             "Last element before '@' and first element after '@' must be a letter. Add another letter before changing that element" + "<br />" + 
+             "Two letters must exist after the last '.'. Add another letter before changing those remaining two letters" + "<br />" + 
+             "First element of email can't start with '@'. Add another letter before changing that first element";
+        }
+        else {
+          document.getElementById("emailErr")!.innerHTML = "";
+          this.setState({email: e.target.value});
+        }
       }
 
       submitForm = (event: React.FormEvent<HTMLFormElement>) => {
@@ -71,35 +101,47 @@ class CreateEmployee extends Component<{},CreateEmployeeI> {
       }
 
     render () {
+      var isEnabled = this.state.firstname.length > 0 && this.state.lastname.length > 0 && 
+                        this.state.role.length > 0 && this.state.email.length > 0;
 
+        console.log(this.state.email.length);
+        console.log(isEnabled);                  
         return (
             <div className= 'container'>
-                <Form onSubmit={this.submitForm}>
+                <Form onSubmit={this.submitForm} style={{
+                    width: "100%",
+                    paddingLeft: "8px",
+                    paddingTop: "30px",
+                    paddingBottom: "6px"
+                    }}>
                     <Form.Group controlId="firstname" onChange={this.onChangeEmployeeFirstName}>
                         <Form.Label>First Name</Form.Label>
-                        <Form.Control type="text"/>
+                        <Form.Control type="text" placeholder="Please insert a valid first name!"/>
+                        <Form.Label id="firstnameErr"></Form.Label>
                     </Form.Group>
 
                     <br/ >
                     <Form.Group controlId="lastname" onChange={this.onChangeEmployeeLastName}>
                         <Form.Label>Last Name</Form.Label>
-                        <Form.Control type="text"/>
+                        <Form.Control type="text" placeholder="Please insert a valid last name!"/>
+                        <Form.Label id="lastnameErr"></Form.Label>
                     </Form.Group>
 
                     <br/ >
                     <Form.Group controlId="role" onChange={this.onChangeEmployeeRole}>
                         <Form.Label>Role</Form.Label>
-                        <Form.Control type="text"/>
+                        <Form.Control type="text" placeholder="Please insert a valid role!"/>
+                        <Form.Label id="roleErr"></Form.Label>
                     </Form.Group>
-
                     <br/ >
                     <Form.Group controlId="email" onChange={this.onChangeEmployeeEmail}>
                         <Form.Label>Email</Form.Label>
-                        <Form.Control type="email"/>
+                        <Form.Control type="email" placeholder="Please insert a valid email address!"/>
+                        <Form.Label id="emailErr"></Form.Label>
                     </Form.Group>
 
                     <br/ >
-                    <Button variant="danger" size="lg" type="submit">
+                    <Button disabled={!isEnabled} variant="danger" size="lg" type="submit">
                         Create Employee
                     </Button>
                 </Form>
