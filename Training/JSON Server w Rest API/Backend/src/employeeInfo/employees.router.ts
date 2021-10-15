@@ -18,10 +18,11 @@
  */
 
 // GET employees
-function getAllPosts(request: express.Request, response: express.Response) {
+function getAllPosts(request: express.Request, response: express.Response, empList:any[]) {
   employeeSchemaModel.find()
     .then(posts => {
       response.send(posts);
+      empList = posts;
     })
 }
 
@@ -30,7 +31,8 @@ employeesRouter.route('/').get(async (req: Request, res: Response) => {
       const items: Employee[] = await EmployeeService.findAll();
       //res.status(200).send(items);
 
-      getAllPosts(req,res);
+      var empList:any = [];
+      getAllPosts(req,res,empList);
 
     } catch (e: any) {
       res.status(500).send(e.message);
@@ -80,7 +82,19 @@ employeesRouter.route('/create-employee').post(async (req: Request, res: Respons
         email: req.body.email
       })
 
-      const { firstname, lastname, role, email }: SavedEmpDocument = await employee.save();
+      const userExists = await employeeSchemaModel.exists({ firstname: req.body.firstname, lastname: req.body.lastname });
+      if (userExists) console.log("User exists");
+      else console.log("User does not exist");
+      const emailExists = await employeeSchemaModel.exists({ email: req.body.email });
+
+      if(userExists){
+        throw new Error('This employee already exists!');
+      }
+      else if(emailExists){
+        throw new Error('This email is taken. Please use another email.');
+      }
+      else{
+        const { firstname, lastname, role, email }: SavedEmpDocument = await employee.save();
       
         return res.status(200).send({   
             firstname,
@@ -89,7 +103,7 @@ employeesRouter.route('/create-employee').post(async (req: Request, res: Respons
             email,
             message: 'Employee created'
         })
-
+      }
     } catch (e: any) {
       res.status(500).send(e.message);
     }
@@ -99,17 +113,51 @@ employeesRouter.route('/create-employee').post(async (req: Request, res: Respons
 async function updateId(request: express.Request, response: express.Response) {
   var id = request.params.id;
   console.log(id);       
-  const postData: Employee = request.body;
+  //const postData: Employee = request.body;
   try {
-   let post= await employeeSchemaModel.findByIdAndUpdate(id, postData, {new:true});
-    if(post){
-      response.status(200).send(post);
-    }
-    else{
-      response.status(404).send(id + " not found");
-    }
-  } catch (error) {
-    response.status(500).send(error);
+      const userExists = await employeeSchemaModel.exists({ firstname: request.body.firstname, lastname: request.body.lastname });
+      const emailExists = await employeeSchemaModel.exists({ email: request.body.email });
+
+      if(userExists){
+        const findId:any[] = await employeeSchemaModel.find({firstname: request.body.firstname, lastname: request.body.lastname})
+        var temp_id = findId[0]._id;
+        if(id != temp_id){
+          throw new Error("Can not update another employee's information");
+        }
+        if(emailExists){
+          await findIdByEmail(request, response, id);
+        }
+        await finalUpdate(request, response, id);
+      }
+      else if(emailExists){
+        await findIdByEmail(request, response, id);
+        await finalUpdate(request, response, id);
+      }
+      else{
+        await finalUpdate(request, response, id);
+      }
+    
+  } catch (e:any) {
+    response.status(500).send(e.message);
+  }
+}
+
+async function findIdByEmail(request: express.Request, response: express.Response, id:string) {
+  const findIdEmail:any[] = await employeeSchemaModel.find({email: request.body.email})
+  var temp_id = findIdEmail[0]._id;
+  if(id != temp_id){
+    throw new Error("Can not update another employee's information");
+  }
+}
+
+async function finalUpdate(request: express.Request, response: express.Response, id:string){
+  const postData: Employee = request.body;
+  let post= await employeeSchemaModel.findByIdAndUpdate(id, postData, {new:true});
+  if(post){
+    response.status(200).send(post);
+  }
+  else{
+    response.status(404).send(id + " not found");
   }
 }
 

@@ -76,27 +76,41 @@ class CreateEmployee extends Component<{},CreateEmployeeI> {
       submitForm = (event: React.FormEvent<HTMLFormElement>) => {
         // Preventing the page from reloading
         event.preventDefault();
-        
-        console.log(`Employee successfully created!`);
-        console.log(`First Name: ${this.state.firstname}`);
-        console.log(`Last Name: ${this.state.lastname}`);
-        console.log(`Role: ${this.state.role}`);
-        console.log(`Email: ${this.state.email}`);
 
-        alert(`Employee successfully created!`);
-        window.location.href = 'http://localhost:3000/employee-list';
-
-
-        const employeeObject = {
+        try {
+          const employeeObject = {
             firstname: this.state.firstname,
             lastname: this.state.lastname,
             role: this.state.role,
             email: this.state.email
           };
           axios.post('http://localhost:7000/employees/create-employee', employeeObject)
-            .then(res => console.log(res.data));
-    
-        this.setState({firstname: '', lastname: '', role: '', email: ''})
+            .then(res => {
+              console.log(res.data);
+              this.setState({firstname: '', lastname: '', role: '', email: ''})
+
+              console.log(`Employee successfully created!`);
+              console.log(`First Name: ${this.state.firstname}`);
+              console.log(`Last Name: ${this.state.lastname}`);
+              console.log(`Role: ${this.state.role}`);
+              console.log(`Email: ${this.state.email}`);
+              alert(`Employee successfully created!`);
+              window.location.href = 'http://localhost:3000/employee-list';
+
+            })
+            .catch (err => {
+              if (err.response) {
+                alert(err.response.data);
+                window.location.href = 'http://localhost:3000/create-employee'
+              } else if (err.request) {
+                
+              } else {
+              }
+            })
+
+        } catch (error) {
+          console.log("error");
+        }
     
       }
 

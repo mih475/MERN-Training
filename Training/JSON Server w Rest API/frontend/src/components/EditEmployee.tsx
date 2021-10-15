@@ -116,7 +116,13 @@ class EditEmployee extends Component<RouteComponentProps,EditEmployeeI> {
                 alert('Employee successfully updated');
                 window.location.href = 'http://localhost:3000/employee-list';
             }).catch((error) => {
-                console.log(error)
+                if (error.response) {
+                    alert(error.response.data);
+                    window.location.href = 'http://localhost:3000/edit-employee/' + result
+                } else if (error.request) {
+                    
+                } else {
+                }
             })
     
     } 

@@ -19,7 +19,7 @@ class EmployeeList extends Component<RouteComponentProps,EmployeeIStates & Pagin
           posts: [],
           loading: false,
           currentPage: 1,
-          postsPerPage: 3
+          postsPerPage: 10
         };
       }
     
